@@ -1,6 +1,4 @@
 fastapi
-uvicorn[standard]
+uvicorn
 pydantic
-curl-cffi
-python-multipart
 requests

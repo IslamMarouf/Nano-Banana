@@ -1,0 +1,14 @@
+.idea/
+.venv/
+__pycache__/
+.env
+*.log
+/output_images/
+*.jpg
+*.png
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+*.ico
+*.webp

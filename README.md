@@ -1,40 +1,37 @@
-**This is a Unofficial FastAPI Based Nano Banana 🍌  API**
+# 🍌 Nano Banana Image Generator
 
-Use it without abusing the services 
+A console application for creating and editing images using AI.
 
-# Usage
+## Features
 
-# Clone the repository 
+- **Create new images** from text prompts
+- **Edit existing images** with text descriptions
+- **Interactive console interface**
+- **Automatic image saving** to `output_images` folder
+- **Progress indicators** and status messages
 
+## Usage
+
+1. Install dependencies:
 ```bash
-git clone https://github.com/Kenosis01/Nano-Banana
-# after
-cd Nano-Banana
-```
-
-# Installation of dependencies 
-
-``` bash
 pip install -r requirements.txt
 ```
 
-# Run the server 
-
-``` bash
-python main.py
-
-# visit localhost:10000/docs in your browser
-
+2. Run the console app:
+```bash
+python app.py
 ```
-# Usage Guide
 
-You will see Swagger UI On that page. This API has 
-/v1/image/generation endpoint where you can enter 
-your prompt or give the url of image
-(which you want to edit). 
+3. Choose your option:
+   - **Create**: Generate a new image from a text prompt
+   - **Edit**: Modify an existing image (local file or URL) with a text prompt
 
+4. Generated images are automatically saved to the `output_images` folder
 
+## File Structure
 
-# Donate
-
-If you loved the project plz donate me for more awesome projects buymeacoffee.com/kenosis
+- `app.py` - Main console application
+- `main.py` - FastAPI server with image generation logic
+- `utils.py` - Helper functions for image operations
+- `output_images/` - Folder where generated images are saved
+- `requirements.txt` - Python dependencies
