@@ -12,3 +12,6 @@ __pycache__/
 *.tiff
 *.ico
 *.webp
+config.json
+*.db
+*.sqlite

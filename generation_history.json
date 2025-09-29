@@ -1,0 +1,14 @@
+[
+  {
+    "id": "demo_1758956585",
+    "type": "create",
+    "prompt": "Demo prompt for history tracking",
+    "format": "jpg",
+    "resolution": "1024x1024",
+    "image_url": "https://example.com/demo.jpg",
+    "timestamp": "2025-09-27T10:03:05",
+    "metadata": {
+      "demo": true
+    }
+  }
+]

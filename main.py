@@ -1,12 +1,16 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 import requests
 import time
 import uuid
 import logging
 import io
+import os
+import json
 
 # Configure logging with timestamps and structured format
 logging.basicConfig(
@@ -21,14 +25,36 @@ logger = logging.getLogger(__name__)
 class ImageGenerationRequest(BaseModel):
     prompt: str
     image_url: Optional[str] = None  # Starting image URL for editing
+    format: Optional[str] = "jpg"  # Output format
+    resolution: Optional[str] = "1024x1024"  # Output resolution
+    quality: Optional[str] = "high"  # Quality setting
     
     class Config:
         json_schema_extra = {
             "example": {
                 "prompt": "A beautiful sunset over mountains",
-                "image_url": "https://example.com/image.jpg"
+                "image_url": "https://example.com/image.jpg",
+                "format": "jpg",
+                "resolution": "1024x1024",
+                "quality": "high"
             }
         }
+
+class BatchGenerationRequest(BaseModel):
+    prompts: List[str]
+    format: Optional[str] = "jpg"
+    resolution: Optional[str] = "1024x1024"
+    quality: Optional[str] = "high"
+
+class HistoryItem(BaseModel):
+    id: str
+    type: str  # "create" or "edit"
+    prompt: str
+    format: str
+    resolution: Optional[str] = None
+    image_url: str
+    timestamp: str
+    metadata: Optional[dict] = None
 
 
 # --- Config ---
@@ -435,7 +461,7 @@ class VisualGPTProvider:
 # --- App Init ---
 app = FastAPI(
     title="🍌 Nano Banana Image Generation API", 
-    version="1.0.0",
+    version="2.0.0",
     description="""A powerful image generation API that creates images from text prompts and uploads them to uguu.se.
     
 ## Features
@@ -443,16 +469,35 @@ app = FastAPI(
 - Optional starting image for editing
 - Automatic upload to uguu.se for easy sharing
 - Real-time generation status with structured logging
+- Batch processing capabilities
+- Web interface support
+- History tracking and analytics
     
 ## Usage
 1. Use the `/v1/image/generations` endpoint for programmatic access
 2. Check `/health` for service status
 3. All generated images are automatically uploaded to uguu.se
+4. Access the web interface at `/web`
     """,
     docs_url="/docs",
     redoc_url="/redoc"
 )
+
+# Add CORS middleware for web interface
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 provider = VisualGPTProvider()
+
+# Create directories for file storage
+os.makedirs("uploads", exist_ok=True)
+os.makedirs("output_images", exist_ok=True)
+os.makedirs("cache", exist_ok=True)
 
 
 # --- Routes ---
@@ -522,7 +567,177 @@ async def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "service": "Nano Banana Image Generation API"}
 
+@app.get("/web", summary="Web Interface", description="Serve the web interface")
+async def serve_web_interface():
+    """Serve the web interface"""
+    return FileResponse("web_interface.html")
+
+@app.post("/upload", summary="Upload File", description="Upload an image file for editing")
+async def upload_file(file: UploadFile = File(...)):
+    """Upload an image file and return its URL"""
+    try:
+        # Validate file type
+        if not file.content_type.startswith('image/'):
+            raise HTTPException(status_code=400, detail="File must be an image")
+        
+        # Generate unique filename
+        timestamp = int(time.time())
+        filename = f"upload_{timestamp}_{file.filename}"
+        filepath = os.path.join("uploads", filename)
+        
+        # Save file
+        with open(filepath, "wb") as buffer:
+            content = await file.read()
+            buffer.write(content)
+        
+        # Upload to uguu.se
+        uploaded_url = upload_image_to_uguu(f"file://{os.path.abspath(filepath)}")
+        
+        logger.info(f"File uploaded successfully: {uploaded_url}")
+        return {"success": True, "url": uploaded_url, "filename": filename}
+        
+    except Exception as e:
+        logger.error(f"File upload error: {e}")
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+
+@app.post("/v1/image/batch", 
+         summary="Batch Generate Images",
+         description="Generate multiple images from multiple prompts")
+async def batch_generate_images(request: BatchGenerationRequest):
+    """Generate multiple images from multiple prompts"""
+    logger.info(f"Received batch generation request for {len(request.prompts)} prompts")
+    
+    results = []
+    for i, prompt in enumerate(request.prompts):
+        try:
+            logger.info(f"Processing batch item {i+1}/{len(request.prompts)}: {prompt[:50]}...")
+            image_url = await provider.generate_image(prompt)
+            
+            results.append({
+                "prompt": prompt,
+                "url": image_url,
+                "status": "success",
+                "index": i
+            })
+            
+        except Exception as e:
+            logger.error(f"Batch item {i+1} failed: {e}")
+            results.append({
+                "prompt": prompt,
+                "url": None,
+                "status": "failed",
+                "error": str(e),
+                "index": i
+            })
+    
+    success_count = len([r for r in results if r["status"] == "success"])
+    
+    return {
+        "total": len(request.prompts),
+        "successful": success_count,
+        "failed": len(request.prompts) - success_count,
+        "results": results
+    }
+
+@app.get("/v1/history", summary="Get Generation History", description="Get generation history")
+async def get_history():
+    """Get generation history"""
+    history_file = "generation_history.json"
+    if os.path.exists(history_file):
+        try:
+            with open(history_file, 'r') as f:
+                history = json.load(f)
+            return {"history": history}
+        except Exception as e:
+            logger.error(f"Error reading history: {e}")
+            return {"history": []}
+    return {"history": []}
+
+@app.post("/v1/history", summary="Add to History", description="Add item to generation history")
+async def add_to_history(item: HistoryItem):
+    """Add item to generation history"""
+    history_file = "generation_history.json"
+    
+    try:
+        # Load existing history
+        if os.path.exists(history_file):
+            with open(history_file, 'r') as f:
+                history = json.load(f)
+        else:
+            history = []
+        
+        # Add new item
+        history.insert(0, item.dict())
+        
+        # Keep only last 100 items
+        history = history[:100]
+        
+        # Save back to file
+        with open(history_file, 'w') as f:
+            json.dump(history, f, indent=2)
+        
+        logger.info(f"Added item to history: {item.id}")
+        return {"success": True, "message": "Item added to history"}
+        
+    except Exception as e:
+        logger.error(f"Error adding to history: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to add to history: {str(e)}")
+
+@app.get("/v1/stats", summary="Get Statistics", description="Get generation statistics")
+async def get_statistics():
+    """Get generation statistics"""
+    stats_file = "generation_stats.json"
+    
+    if os.path.exists(stats_file):
+        try:
+            with open(stats_file, 'r') as f:
+                stats = json.load(f)
+        except Exception as e:
+            logger.error(f"Error reading stats: {e}")
+            stats = {"total_generations": 0, "successful_generations": 0, "failed_generations": 0}
+    else:
+        stats = {"total_generations": 0, "successful_generations": 0, "failed_generations": 0}
+    
+    # Add current session stats
+    stats["server_uptime"] = int(time.time())
+    stats["last_updated"] = time.strftime("%Y-%m-%d %H:%M:%S")
+    
+    return stats
+
+@app.post("/v1/stats", summary="Update Statistics", description="Update generation statistics")
+async def update_statistics(success: bool = True):
+    """Update generation statistics"""
+    stats_file = "generation_stats.json"
+    
+    try:
+        # Load existing stats
+        if os.path.exists(stats_file):
+            with open(stats_file, 'r') as f:
+                stats = json.load(f)
+        else:
+            stats = {"total_generations": 0, "successful_generations": 0, "failed_generations": 0}
+        
+        # Update stats
+        stats["total_generations"] += 1
+        if success:
+            stats["successful_generations"] += 1
+        else:
+            stats["failed_generations"] += 1
+        
+        stats["last_updated"] = time.strftime("%Y-%m-%d %H:%M:%S")
+        
+        # Save back to file
+        with open(stats_file, 'w') as f:
+            json.dump(stats, f, indent=2)
+        
+        return {"success": True, "stats": stats}
+        
+    except Exception as e:
+        logger.error(f"Error updating stats: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to update stats: {str(e)}")
+
 if __name__ == "__main__":
     import uvicorn
     logger.info("Starting Nano Banana Image Generation API server on port 10000")
+    logger.info("Web interface available at: http://127.0.0.1:10000/web")
     uvicorn.run("main:app", host="127.0.0.1", port=10000, reload=True)

@@ -2,3 +2,10 @@ fastapi
 uvicorn
 pydantic
 requests
+tqdm
+rich
+python-multipart
+aiofiles
+Pillow
+numpy
+asyncio
