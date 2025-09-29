@@ -28,6 +28,11 @@ class ImageGenerationRequest(BaseModel):
     format: Optional[str] = "jpg"  # Output format
     resolution: Optional[str] = "1024x1024"  # Output resolution
     quality: Optional[str] = "high"  # Quality setting
+    strength: Optional[float] = 0.8  # How much to modify (0.0-1.0)
+    negative_prompt: Optional[str] = None  # What to avoid
+    style: Optional[str] = None  # Style preset (realistic, artistic, cartoon, etc.)
+    seed: Optional[int] = None  # For reproducible results
+    num_variations: Optional[int] = 1  # Number of variations to generate
     
     class Config:
         json_schema_extra = {
@@ -36,7 +41,12 @@ class ImageGenerationRequest(BaseModel):
                 "image_url": "https://example.com/image.jpg",
                 "format": "jpg",
                 "resolution": "1024x1024",
-                "quality": "high"
+                "quality": "high",
+                "strength": 0.8,
+                "negative_prompt": "blurry, low quality",
+                "style": "realistic",
+                "seed": 42,
+                "num_variations": 1
             }
         }
 
@@ -649,6 +659,12 @@ async def health_check():
 
 @app.get("/web", summary="Web Interface", description="Serve the web interface")
 async def serve_web_interface():
+    """Serve the PRO web interface with advanced controls and comparison slider"""
+    html_path = os.path.join(os.path.dirname(__file__), "web_interface_v3.html")
+    return FileResponse(html_path)
+
+@app.get("/web/v2", summary="Web Interface V2", description="Serve the enhanced web interface")
+async def serve_web_interface_v2():
     """Serve the enhanced web interface"""
     html_path = os.path.join(os.path.dirname(__file__), "web_interface_v2.html")
     return FileResponse(html_path)
