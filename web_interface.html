@@ -804,10 +804,16 @@
 
         function updateFileArea(fileName) {
             const fileArea = document.getElementById('editImageArea');
+            const fileInput = document.getElementById('editImageInput');
+            
+            // Update the display text without removing the input element
             fileArea.innerHTML = `
                 <p>✅ <strong>${fileName}</strong> selected</p>
                 <p style="font-size: 0.9rem; color: #666; margin-top: 10px;">Click to change file</p>
             `;
+            
+            // Re-append the file input to maintain it in the DOM
+            fileArea.appendChild(fileInput);
         }
 
         // History functions

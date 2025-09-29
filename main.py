@@ -63,6 +63,9 @@ IMAGE_UPLOAD_URL = "https://wallpaperaccess.com/full/1556608.jpg"
 # Fallback image generation using a more reliable service
 FALLBACK_ENABLED = True
 
+# Progress tracking dictionary
+generation_progress = {}
+
 
 def upload_image_to_uguu(image_url: str) -> str:
     """Download image and upload to uguu.se"""
@@ -334,7 +337,7 @@ class VisualGPTProvider:
                 else:
                     raise
 
-    def poll_status(self, session_id, timeout=180, interval=5):
+    def poll_status(self, session_id, timeout=180, interval=5, task_id=None):
         url = f"https://visualgpt.io/api/v1/prediction/get-status?session_id={session_id}"
         start = time.time()
         logger.info(f"Starting to poll status for session_id: {session_id}")
@@ -392,6 +395,17 @@ class VisualGPTProvider:
                     progress = result.get("progress", 0)
                     logger.info(f"Current status: {status}, progress: {progress}%")
                     
+                    # Update task progress if task_id provided
+                    if task_id and status in ["processing", "queued", "starting"]:
+                        # Map API progress (0-100) to our range (30-85)
+                        mapped_progress = 30 + int((progress / 100) * 55)
+                        generation_progress[task_id] = {
+                            "status": "processing",
+                            "progress": mapped_progress,
+                            "message": f"AI is generating... {progress}%",
+                            "stage": "generate"
+                        }
+                    
                     if status == "succeeded":
                         # The API returns URLs in an array, not as a single URL
                         urls = result.get("urls", [])
@@ -432,16 +446,44 @@ class VisualGPTProvider:
             
             time.sleep(interval)
 
-    async def generate_image(self, prompt: str, image_url: str = None) -> str:
+    async def generate_image(self, prompt: str, image_url: str = None, task_id: str = None) -> str:
         """Generate an image and return the uploaded URL from uguu.se"""
         try:
             # Use default URL if image_url is None or empty
             starting_image = image_url if image_url and image_url.strip() else IMAGE_UPLOAD_URL
             logger.info(f"Starting image generation for prompt: {prompt[:50]}... with starting_image: {starting_image}")
             
+            # Update progress
+            if task_id:
+                generation_progress[task_id] = {
+                    "status": "processing",
+                    "progress": 10,
+                    "message": "Submitting request to AI...",
+                    "stage": "submit"
+                }
+            
             # Set shorter timeout for initial attempt
             session_id = self.submit_prediction(prompt, starting_image)
-            original_image_url = self.poll_status(session_id, timeout=120)  # 2 minutes max
+            
+            # Update progress
+            if task_id:
+                generation_progress[task_id] = {
+                    "status": "processing",
+                    "progress": 30,
+                    "message": "Generating image...",
+                    "stage": "generate"
+                }
+            
+            original_image_url = self.poll_status(session_id, timeout=120, task_id=task_id)  # 2 minutes max
+            
+            # Update progress
+            if task_id:
+                generation_progress[task_id] = {
+                    "status": "processing",
+                    "progress": 90,
+                    "message": "Uploading to server...",
+                    "stage": "upload"
+                }
             
             # Upload to uguu.se and return the new URL
             uploaded_url = upload_image_to_uguu(original_image_url)
@@ -453,6 +495,13 @@ class VisualGPTProvider:
             # Try fallback if enabled
             if FALLBACK_ENABLED:
                 logger.info("Attempting fallback image generation...")
+                if task_id:
+                    generation_progress[task_id] = {
+                        "status": "processing",
+                        "progress": 50,
+                        "message": "Using fallback generator...",
+                        "stage": "fallback"
+                    }
                 fallback_provider = FallbackImageProvider()
                 return await fallback_provider.generate_image(prompt, image_url)
             else:
@@ -519,16 +568,35 @@ async def create_image(request: ImageGenerationRequest):
         logger.error("Empty prompt provided")
         raise HTTPException(status_code=400, detail="Prompt cannot be empty")
     
+    # Create task ID for progress tracking
+    task_id = str(uuid.uuid4())
+    generation_progress[task_id] = {
+        "status": "starting",
+        "progress": 0,
+        "message": "Initializing generation...",
+        "stage": "init"
+    }
+    
     try:
         uploaded_url = await provider.generate_image(
             request.prompt, 
-            request.image_url if request.image_url and request.image_url.strip() else None
+            request.image_url if request.image_url and request.image_url.strip() else None,
+            task_id=task_id
         )
+        
+        # Update progress to complete
+        generation_progress[task_id] = {
+            "status": "complete",
+            "progress": 100,
+            "message": "Generation complete!",
+            "stage": "complete"
+        }
         
         created_ts = int(time.time())
         
         response_payload = {
             "created": created_ts,
+            "task_id": task_id,
             "data": [
                 {
                     "url": uploaded_url,
@@ -541,8 +609,20 @@ async def create_image(request: ImageGenerationRequest):
         return JSONResponse(content=response_payload)
         
     except HTTPException:
+        generation_progress[task_id] = {
+            "status": "failed",
+            "progress": 0,
+            "message": "Generation failed",
+            "stage": "error"
+        }
         raise
     except Exception as e:
+        generation_progress[task_id] = {
+            "status": "failed",
+            "progress": 0,
+            "message": str(e),
+            "stage": "error"
+        }
         logger.error(f"Unexpected error during image generation: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
@@ -569,8 +649,27 @@ async def health_check():
 
 @app.get("/web", summary="Web Interface", description="Serve the web interface")
 async def serve_web_interface():
-    """Serve the web interface"""
-    return FileResponse("web_interface.html")
+    """Serve the enhanced web interface"""
+    html_path = os.path.join(os.path.dirname(__file__), "web_interface_v2.html")
+    return FileResponse(html_path)
+
+@app.get("/web/v1", summary="Web Interface V1", description="Serve the original web interface")
+async def serve_web_interface_v1():
+    """Serve the original web interface"""
+    html_path = os.path.join(os.path.dirname(__file__), "web_interface.html")
+    return FileResponse(html_path)
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    """Return empty response for favicon to prevent 404 errors"""
+    return JSONResponse(content={}, status_code=204)
+
+@app.get("/v1/progress/{task_id}", summary="Get Generation Progress", description="Get real-time progress for a generation task")
+async def get_progress(task_id: str):
+    """Get real-time progress for a generation task"""
+    if task_id in generation_progress:
+        return generation_progress[task_id]
+    return {"status": "not_found", "progress": 0, "message": "Task not found"}
 
 @app.post("/upload", summary="Upload File", description="Upload an image file for editing")
 async def upload_file(file: UploadFile = File(...)):
@@ -580,21 +679,61 @@ async def upload_file(file: UploadFile = File(...)):
         if not file.content_type.startswith('image/'):
             raise HTTPException(status_code=400, detail="File must be an image")
         
+        # Read file content
+        content = await file.read()
+        
         # Generate unique filename
         timestamp = int(time.time())
         filename = f"upload_{timestamp}_{file.filename}"
-        filepath = os.path.join("uploads", filename)
         
-        # Save file
+        # Save file locally as backup
+        filepath = os.path.join("uploads", filename)
         with open(filepath, "wb") as buffer:
-            content = await file.read()
             buffer.write(content)
         
-        # Upload to uguu.se
-        uploaded_url = upload_image_to_uguu(f"file://{os.path.abspath(filepath)}")
+        logger.info(f"⏳ Uploading {filename} to uguu.se...")
         
-        logger.info(f"File uploaded successfully: {uploaded_url}")
-        return {"success": True, "url": uploaded_url, "filename": filename}
+        # Upload directly to uguu.se using file bytes
+        image_data = io.BytesIO(content)
+        files = {"files[]": (filename, image_data, file.content_type)}
+        
+        # Try uguu.se first, then fallback to other services
+        upload_services = [
+            ("https://uguu.se/upload", "uguu.se"),
+            ("https://0x0.st", "0x0.st")
+        ]
+        
+        for upload_url, service_name in upload_services:
+            try:
+                if service_name == "0x0.st":
+                    # 0x0.st uses different format
+                    image_data.seek(0)  # Reset stream position
+                    files = {"file": (filename, image_data, file.content_type)}
+                
+                upload_response = requests.post(upload_url, files=files, timeout=30)
+                
+                if upload_response.status_code == 200:
+                    if service_name == "uguu.se":
+                        data = upload_response.json()
+                        if data.get("success") and data.get("files"):
+                            uploaded_url = data["files"][0].get("url")
+                            if uploaded_url:
+                                logger.info(f"✅ Upload successful to {service_name}: {uploaded_url}")
+                                return {"success": True, "url": uploaded_url, "filename": filename}
+                    elif service_name == "0x0.st":
+                        uploaded_url = upload_response.text.strip()
+                        if uploaded_url.startswith("http"):
+                            logger.info(f"✅ Upload successful to {service_name}: {uploaded_url}")
+                            return {"success": True, "url": uploaded_url, "filename": filename}
+                
+                logger.warning(f"Upload to {service_name} failed, trying next service...")
+                
+            except Exception as e:
+                logger.warning(f"Upload to {service_name} failed: {e}")
+                continue
+        
+        # If all upload services fail, raise an error
+        raise Exception("All upload services failed")
         
     except Exception as e:
         logger.error(f"File upload error: {e}")

@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍌 Nano Banana Image Generator</title>
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5568d3;
+            --secondary: #764ba2;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --bg-light: #f8f9fa;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --border: #e5e7eb;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --shadow-lg: 0 20px 50px rgba(0,0,0,0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg-light: #1f2937;
+            --text-dark: #f9fafb;
+            --text-light: #d1d5db;
+            --border: #374151;
+            --shadow: 0 10px 30px rgba(0,0,0,0.3);
+            --shadow-lg: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+            transition: var(--transition);
+        }
+
+        [data-theme="dark"] body {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition);
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        [data-theme="dark"] .card {
+            background: #1f2937;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: var(--primary);
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+            font-family: inherit;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn:disabled::before {
+            display: none;
+        }
+
+        /* Progress Bar with Real-Time Updates */
+        .progress-container {
+            margin: 25px 0;
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.5s ease-out;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255,255,255,0.3),
+                transparent
+            );
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 12px;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        .progress-stage {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-size: 0.85rem;
+        }
+
+        .stage {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-light);
+            transition: var(--transition);
+        }
+
+        .stage.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .stage.complete {
+            color: var(--success);
+        }
+
+        /* Image Preview */
+        .image-preview-container {
+            margin: 20px 0;
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .image-preview {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        /* File Upload Area */
+        .file-upload-area {
+            border: 3px dashed var(--border);
+            border-radius: 16px;
+            padding: 50px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--bg-light);
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(102, 126, 234, 0.05);
+            transform: scale(1.02);
+        }
+
+        .file-upload-area.dragover {
+            border-color: var(--primary);
+            background: rgba(102, 126, 234, 0.1);
+            transform: scale(1.05);
+        }
+
+        .file-upload-area .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.7;
+        }
+
+        /* Prompt Templates */
+        .prompt-templates {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .template-chip {
+            background: var(--bg-light);
+            border: 2px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-dark);
+        }
+
+        .template-chip:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* Result Container */
+        .result-container {
+            margin-top: 30px;
+            display: none;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .result-image {
+            width: 100%;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+
+        .result-image:hover {
+            transform: scale(1.02);
+        }
+
+        .result-info {
+            background: var(--bg-light);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .result-info h3 {
+            color: var(--primary);
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+        }
+
+        .result-info p {
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .btn-success {
+            background: var(--success);
+            flex: 1;
+            min-width: 140px;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 18px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 400px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--error);
+        }
+
+        .toast.info {
+            background: #3b82f6;
+        }
+
+        .toast.warning {
+            background: var(--warning);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .theme-toggle {
+                position: relative;
+                margin: 20px auto;
+                display: block;
+                width: fit-content;
+            }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode">
+                <span id="themeIcon">🌙</span>
+            </button>
+            <h1>🍌 Nano Banana Image Generator</h1>
+            <p>Create and edit stunning AI-generated images with real-time progress tracking</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Create Image Card -->
+            <div class="card">
+                <h2>🎨 Create New Image</h2>
+                
+                <div class="prompt-templates">
+                    <div class="template-chip" onclick="useTemplate('create', 'A beautiful sunset over mountains')">🌄 Sunset</div>
+                    <div class="template-chip" onclick="useTemplate('create', 'A futuristic city at night')">🌃 Futuristic City</div>
+                    <div class="template-chip" onclick="useTemplate('create', 'A serene forest landscape')">🌲 Forest</div>
+                    <div class="template-chip" onclick="useTemplate('create', 'Abstract colorful art')">🎨 Abstract</div>
+                    <div class="template-chip" onclick="useTemplate('create', 'A cute cartoon character')">😊 Cartoon</div>
+                </div>
+
+                <form id="createForm">
+                    <div class="form-group">
+                        <label for="createPrompt">Describe your image:</label>
+                        <textarea id="createPrompt" placeholder="A beautiful sunset over mountains with vibrant colors..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="createFormat">Output Format:</label>
+                        <select id="createFormat">
+                            <option value="jpg">JPG</option>
+                            <option value="png">PNG</option>
+                            <option value="webp">WebP</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="createResolution">Resolution:</label>
+                        <select id="createResolution">
+                            <option value="512x512">512x512</option>
+                            <option value="1024x1024" selected>1024x1024</option>
+                            <option value="2048x2048">2048x2048</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn" id="createBtn">
+                        <span id="createBtnText">Generate Image</span>
+                    </button>
+                </form>
+
+                <div class="progress-container" id="createProgress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="createProgressFill"></div>
+                    </div>
+                    <div class="progress-text" id="createProgressText">Initializing...</div>
+                    <div class="progress-stage">
+                        <span class="stage" id="createStage1">📤 Submit</span>
+                        <span class="stage" id="createStage2">🎨 Generate</span>
+                        <span class="stage" id="createStage3">☁️ Upload</span>
+                        <span class="stage" id="createStage4">✅ Complete</span>
+                    </div>
+                </div>
+
+                <div class="result-container" id="createResult">
+                    <img class="result-image" id="createImage" alt="Generated image">
+                    <div class="result-info">
+                        <h3>✨ Generated Image</h3>
+                        <p><strong>Prompt:</strong> <span id="createPromptText"></span></p>
+                        <p><strong>Format:</strong> <span id="createFormatText"></span></p>
+                        <p><strong>Resolution:</strong> <span id="createResolutionText"></span></p>
+                        <p><strong>Generated:</strong> <span id="createTimestamp"></span></p>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary" onclick="downloadImage('createImage')">⬇️ Download</button>
+                        <button class="btn btn-success" onclick="shareImage('createImage')">🔗 Share</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Image Card -->
+            <div class="card">
+                <h2>✏️ Edit Existing Image</h2>
+                
+                <div class="prompt-templates">
+                    <div class="template-chip" onclick="useTemplate('edit', 'Make it more colorful and vibrant')">🌈 Colorful</div>
+                    <div class="template-chip" onclick="useTemplate('edit', 'Add a sunset background')">🌅 Sunset BG</div>
+                    <div class="template-chip" onclick="useTemplate('edit', 'Make it look like a painting')">🖼️ Painting</div>
+                    <div class="template-chip" onclick="useTemplate('edit', 'Add dramatic lighting')">💡 Dramatic</div>
+                </div>
+
+                <form id="editForm">
+                    <div class="form-group">
+                        <label for="editImageInput">Upload or drag an image:</label>
+                        <div class="file-upload-area" id="editImageArea">
+                            <div class="upload-icon">📁</div>
+                            <p><strong>Click to browse</strong> or drag & drop an image</p>
+                            <p style="font-size: 0.9rem; color: var(--text-light); margin-top: 10px;">Supports JPG, PNG, WebP</p>
+                            <input type="file" id="editImageInput" accept="image/*" style="display: none;">
+                        </div>
+                    </div>
+
+                    <div class="image-preview-container" id="editPreviewContainer">
+                        <img class="image-preview" id="editPreview" alt="Preview">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editPrompt">Describe your edits:</label>
+                        <textarea id="editPrompt" placeholder="Make it more colorful, add a sunset background..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="editFormat">Output Format:</label>
+                        <select id="editFormat">
+                            <option value="jpg">JPG</option>
+                            <option value="png">PNG</option>
+                            <option value="webp">WebP</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn" id="editBtn">
+                        <span id="editBtnText">Edit Image</span>
+                    </button>
+                </form>
+
+                <div class="progress-container" id="editProgress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="editProgressFill"></div>
+                    </div>
+                    <div class="progress-text" id="editProgressText">Initializing...</div>
+                    <div class="progress-stage">
+                        <span class="stage" id="editStage1">📤 Upload</span>
+                        <span class="stage" id="editStage2">🎨 Process</span>
+                        <span class="stage" id="editStage3">☁️ Save</span>
+                        <span class="stage" id="editStage4">✅ Complete</span>
+                    </div>
+                </div>
+
+                <div class="result-container" id="editResult">
+                    <img class="result-image" id="editImage" alt="Edited image">
+                    <div class="result-info">
+                        <h3>✨ Edited Image</h3>
+                        <p><strong>Edit Prompt:</strong> <span id="editPromptText"></span></p>
+                        <p><strong>Format:</strong> <span id="editFormatText"></span></p>
+                        <p><strong>Processed:</strong> <span id="editTimestamp"></span></p>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary" onclick="downloadImage('editImage')">⬇️ Download</button>
+                        <button class="btn btn-success" onclick="shareImage('editImage')">🔗 Share</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Global variables
+        const API_BASE = 'http://127.0.0.1:10000';
+        let currentTheme = localStorage.getItem('theme') || 'light';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            applyTheme(currentTheme);
+            setupEventListeners();
+            checkServerStatus();
+        });
+
+        // Theme Toggle
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            applyTheme(currentTheme);
+            localStorage.setItem('theme', currentTheme);
+        }
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            document.getElementById('themeIcon').textContent = theme === 'light' ? '🌙' : '☀️';
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('createForm').addEventListener('submit', handleCreateImage);
+            document.getElementById('editForm').addEventListener('submit', handleEditImage);
+            
+            const fileArea = document.getElementById('editImageArea');
+            const fileInput = document.getElementById('editImageInput');
+            
+            fileArea.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            fileArea.addEventListener('dragover', handleDragOver);
+            fileArea.addEventListener('dragleave', handleDragLeave);
+            fileArea.addEventListener('drop', handleDrop);
+        }
+
+        // Prompt Templates
+        function useTemplate(type, template) {
+            const promptField = type === 'create' ? 'createPrompt' : 'editPrompt';
+            document.getElementById(promptField).value = template;
+            document.getElementById(promptField).focus();
+            showToast('Template applied! Feel free to customize it.', 'info');
+        }
+
+        // Handle create image with real-time progress
+        async function handleCreateImage(e) {
+            e.preventDefault();
+            
+            const prompt = document.getElementById('createPrompt').value;
+            const format = document.getElementById('createFormat').value;
+            const resolution = document.getElementById('createResolution').value;
+            
+            const createBtn = document.getElementById('createBtn');
+            const btnText = document.getElementById('createBtnText');
+            const progressContainer = document.getElementById('createProgress');
+            
+            createBtn.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span> Generating...';
+            progressContainer.style.display = 'block';
+            
+            try {
+                const response = await fetch(`${API_BASE}/v1/image/generations`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt, format, resolution })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const taskId = data.task_id;
+                    const imageUrl = data.data[0].url;
+                    
+                    // Poll for real-time progress
+                    if (taskId) {
+                        await pollProgress(taskId, 'create');
+                    }
+                    
+                    displayCreateResult(prompt, format, resolution, imageUrl);
+                    showToast('Image generated successfully! 🎉', 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                showToast(`Error: ${error.message}`, 'error');
+                console.error('Create image error:', error);
+            } finally {
+                createBtn.disabled = false;
+                btnText.textContent = 'Generate Image';
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    resetProgressStages('create');
+                }, 2000);
+            }
+        }
+
+        // Handle edit image with real-time progress
+        async function handleEditImage(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('editImageInput');
+            const prompt = document.getElementById('editPrompt').value;
+            const format = document.getElementById('editFormat').value;
+            
+            if (!fileInput.files[0]) {
+                showToast('Please select an image to edit', 'warning');
+                return;
+            }
+            
+            const editBtn = document.getElementById('editBtn');
+            const btnText = document.getElementById('editBtnText');
+            const progressContainer = document.getElementById('editProgress');
+            
+            editBtn.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span> Processing...';
+            progressContainer.style.display = 'block';
+            updateProgress('edit', 10, 'Uploading image...', 'upload');
+            
+            try {
+                // Upload image first
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                
+                const uploadResponse = await fetch(`${API_BASE}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!uploadResponse.ok) {
+                    throw new Error('Failed to upload image');
+                }
+                
+                const uploadData = await uploadResponse.json();
+                const imageUrl = uploadData.url;
+                
+                updateProgress('edit', 30, 'Image uploaded, processing...', 'process');
+                
+                // Edit image
+                const response = await fetch(`${API_BASE}/v1/image/generations`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt, image_url: imageUrl, format })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const taskId = data.task_id;
+                    const editedImageUrl = data.data[0].url;
+                    
+                    // Poll for real-time progress
+                    if (taskId) {
+                        await pollProgress(taskId, 'edit');
+                    }
+                    
+                    displayEditResult(prompt, format, editedImageUrl);
+                    showToast('Image edited successfully! 🎉', 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                showToast(`Error: ${error.message}`, 'error');
+                console.error('Edit image error:', error);
+            } finally {
+                editBtn.disabled = false;
+                btnText.textContent = 'Edit Image';
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    resetProgressStages('edit');
+                }, 2000);
+            }
+        }
+
+        // Real-time progress polling
+        async function pollProgress(taskId, type) {
+            const maxAttempts = 60; // 60 attempts * 2 seconds = 2 minutes max
+            let attempts = 0;
+            
+            while (attempts < maxAttempts) {
+                try {
+                    const response = await fetch(`${API_BASE}/v1/progress/${taskId}`);
+                    if (response.ok) {
+                        const progress = await response.json();
+                        
+                        if (progress.status === 'not_found') {
+                            break;
+                        }
+                        
+                        updateProgress(type, progress.progress, progress.message, progress.stage);
+                        
+                        if (progress.status === 'complete' || progress.progress >= 100) {
+                            break;
+                        }
+                        
+                        if (progress.status === 'failed') {
+                            throw new Error(progress.message);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Progress polling error:', error);
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Poll every 2 seconds
+                attempts++;
+            }
+        }
+
+        // Update progress UI
+        function updateProgress(type, progress, message, stage) {
+            const progressFill = document.getElementById(`${type}ProgressFill`);
+            const progressText = document.getElementById(`${type}ProgressText`);
+            
+            progressFill.style.width = progress + '%';
+            progressText.textContent = message;
+            
+            // Update stage indicators
+            const stages = ['submit', 'generate', 'upload', 'complete'];
+            if (type === 'edit') {
+                stages[0] = 'upload';
+                stages[1] = 'process';
+                stages[2] = 'save';
+            }
+            
+            stages.forEach((s, index) => {
+                const stageEl = document.getElementById(`${type}Stage${index + 1}`);
+                stageEl.classList.remove('active', 'complete');
+                
+                if (s === stage) {
+                    stageEl.classList.add('active');
+                } else if (stages.indexOf(s) < stages.indexOf(stage)) {
+                    stageEl.classList.add('complete');
+                }
+            });
+        }
+
+        function resetProgressStages(type) {
+            for (let i = 1; i <= 4; i++) {
+                const stageEl = document.getElementById(`${type}Stage${i}`);
+                stageEl.classList.remove('active', 'complete');
+            }
+        }
+
+        // File handling with preview
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                updateFileArea(file.name);
+                showImagePreview(file);
+            }
+        }
+
+        function showImagePreview(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('editPreview');
+                const container = document.getElementById('editPreviewContainer');
+                preview.src = e.target.result;
+                container.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const fileInput = document.getElementById('editImageInput');
+                fileInput.files = files;
+                updateFileArea(files[0].name);
+                showImagePreview(files[0]);
+            }
+        }
+
+        function updateFileArea(fileName) {
+            const fileArea = document.getElementById('editImageArea');
+            const fileInput = document.getElementById('editImageInput');
+            
+            fileArea.innerHTML = `
+                <div class="upload-icon">✅</div>
+                <p><strong>${fileName}</strong> selected</p>
+                <p style="font-size: 0.9rem; color: var(--text-light); margin-top: 10px;">Click to change file</p>
+            `;
+            
+            fileArea.appendChild(fileInput);
+        }
+
+        // Display results
+        function displayCreateResult(prompt, format, resolution, imageUrl) {
+            const resultContainer = document.getElementById('createResult');
+            const image = document.getElementById('createImage');
+            
+            image.src = imageUrl;
+            document.getElementById('createPromptText').textContent = prompt;
+            document.getElementById('createFormatText').textContent = format.toUpperCase();
+            document.getElementById('createResolutionText').textContent = resolution;
+            document.getElementById('createTimestamp').textContent = new Date().toLocaleString();
+            
+            resultContainer.style.display = 'block';
+            resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function displayEditResult(prompt, format, imageUrl) {
+            const resultContainer = document.getElementById('editResult');
+            const image = document.getElementById('editImage');
+            
+            image.src = imageUrl;
+            document.getElementById('editPromptText').textContent = prompt;
+            document.getElementById('editFormatText').textContent = format.toUpperCase();
+            document.getElementById('editTimestamp').textContent = new Date().toLocaleString();
+            
+            resultContainer.style.display = 'block';
+            resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Utility functions
+        function downloadImage(imageId) {
+            const image = document.getElementById(imageId);
+            const link = document.createElement('a');
+            link.href = image.src;
+            link.download = `nano-banana-${Date.now()}.jpg`;
+            link.click();
+            showToast('Download started! 📥', 'success');
+        }
+
+        function shareImage(imageId) {
+            const image = document.getElementById(imageId);
+            const url = image.src;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Check out my AI-generated image!',
+                    url: url
+                }).then(() => {
+                    showToast('Shared successfully! 🎉', 'success');
+                }).catch(() => {
+                    copyToClipboard(url);
+                });
+            } else {
+                copyToClipboard(url);
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Image URL copied to clipboard! 📋', 'success');
+            }).catch(() => {
+                showToast('Failed to copy URL', 'error');
+            });
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const icons = {
+                success: '✅',
+                error: '❌',
+                info: 'ℹ️',
+                warning: '⚠️'
+            };
+            
+            toast.innerHTML = `<span style="font-size: 1.2rem;">${icons[type]}</span> ${message}`;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
+        async function checkServerStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                if (!response.ok) {
+                    throw new Error('Server not responding');
+                }
+                showToast('Connected to server! 🚀', 'success');
+            } catch (error) {
+                showToast('⚠️ Server not running. Please start: python main.py', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
