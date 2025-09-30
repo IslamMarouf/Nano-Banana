@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍌 Nano Banana ULTIMATE+ - Complete Platform with Comparison Slider</title>
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5568d3;
+            --secondary: #764ba2;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --bg-light: #f8f9fa;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --border: #e5e7eb;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --shadow-lg: 0 20px 50px rgba(0,0,0,0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg-light: #1f2937;
+            --text-dark: #f9fafb;
+            --text-light: #d1d5db;
+            --border: #374151;
+            --shadow: 0 10px 30px rgba(0,0,0,0.3);
+            --shadow-lg: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+            transition: var(--transition);
+        }
+
+        [data-theme="dark"] body {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        .ultimate-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-left: 10px;
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px 25px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1rem;
+        }
+
+        .nav-tab:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .nav-tab.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: var(--shadow);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition);
+            margin-bottom: 30px;
+        }
+
+        [data-theme="dark"] .card {
+            background: #1f2937;
+        }
+
+        .card h2 {
+            color: var(--primary);
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Gallery Grid */
+        .gallery-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .search-bar {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 20px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            background: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .gallery-item {
+            background: var(--bg-light);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: var(--transition);
+            cursor: pointer;
+            border: 2px solid var(--border);
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .gallery-item-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .gallery-item-info {
+            padding: 15px;
+        }
+
+        .gallery-item-prompt {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .gallery-item-meta {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 10px;
+        }
+
+        .gallery-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn-small {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .icon-btn-small:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .icon-btn-small.danger {
+            background: var(--error);
+        }
+
+        /* Batch Processing */
+        .batch-upload-area {
+            border: 3px dashed var(--border);
+            border-radius: 16px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--bg-light);
+            margin-bottom: 25px;
+        }
+
+        .batch-upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .batch-upload-area.dragover {
+            border-color: var(--primary);
+            background: rgba(102, 126, 234, 0.1);
+            transform: scale(1.02);
+        }
+
+        .batch-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .batch-preview-item {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid var(--border);
+        }
+
+        .batch-preview-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .batch-remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--error);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .batch-progress {
+            margin: 25px 0;
+        }
+
+        .batch-progress-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: var(--bg-light);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .batch-progress-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .batch-progress-info {
+            flex: 1;
+        }
+
+        .batch-progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .batch-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        /* Prompt History */
+        .prompt-history {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .prompt-history-item {
+            background: var(--bg-light);
+            border: 2px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .prompt-history-item:hover {
+            background: var(--info);
+            color: white;
+            border-color: var(--info);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 18px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 400px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--error); }
+        .toast.info { background: var(--info); }
+        .toast.warning { background: var(--warning); }
+
+        /* Keyboard Shortcuts Help */
+        .shortcuts-help {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            display: none;
+            z-index: 999;
+            max-width: 300px;
+        }
+
+        .shortcuts-help.show {
+            display: block;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .shortcuts-help h4 {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .shortcut-key {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .nav-tab {
+                width: 100%;
+            }
+            
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+
+        /* Before/After Comparison Slider */
+        .comparison-container {
+            margin-top: 30px;
+            display: none;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .comparison-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .comparison-header h3 {
+            color: var(--primary);
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .comparison-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            background: var(--bg-light);
+            border: 2px solid var(--border);
+            padding: 10px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1.2rem;
+            color: var(--text-dark);
+        }
+
+        .icon-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .icon-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .comparison-slider-wrapper {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            background: #000;
+        }
+
+        .comparison-images {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .comparison-images.side-by-side {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2px;
+        }
+
+        .comparison-images.side-by-side .before-image,
+        .comparison-images.side-by-side .after-image {
+            position: relative !important;
+            clip-path: none !important;
+            width: 100% !important;
+        }
+
+        .before-image, .after-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .after-image {
+            clip-path: inset(0 50% 0 0);
+        }
+
+        .comparison-slider {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 4px;
+            height: 100%;
+            background: white;
+            cursor: ew-resize;
+            z-index: 10;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .comparison-slider::before {
+            content: '⟷';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .comparison-labels {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .comparison-label {
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .result-info {
+            background: var(--bg-light);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 2px solid var(--border);
+        }
+
+        .result-info h3 {
+            color: var(--primary);
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+        }
+
+        .result-info p {
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .btn-success {
+            background: var(--success);
+            flex: 1;
+            min-width: 140px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode">
+                <span id="themeIcon">🌙</span>
+            </button>
+            <h1>
+                🍌 Nano Banana 
+                <span class="ultimate-badge">ULTIMATE</span>
+            </h1>
+            <p style="color: white; opacity: 0.9; margin-top: 10px;">Complete AI Image Platform with Gallery, Batch Processing & More!</p>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('create', this)">🎨 Create</button>
+            <button class="nav-tab" onclick="switchTab('edit', this)">✏️ Edit</button>
+            <button class="nav-tab" onclick="switchTab('batch', this)">📦 Batch</button>
+            <button class="nav-tab" onclick="switchTab('gallery', this)">🖼️ Gallery</button>
+        </div>
+
+        <!-- Create Tab -->
+        <div class="tab-content active" id="createTab">
+            <div class="card">
+                <h2>🎨 Create New Image</h2>
+                
+                <div class="prompt-history" id="createPromptHistory"></div>
+                
+                <form id="createForm">
+                    <div class="form-group">
+                        <label for="createPrompt">Describe your image:</label>
+                        <textarea id="createPrompt" placeholder="A beautiful sunset over mountains..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="createFormat">Output Format:</label>
+                        <select id="createFormat">
+                            <option value="jpg">JPG</option>
+                            <option value="png">PNG</option>
+                            <option value="webp">WebP</option>
+                        </select>
+                        <p style="font-size: 0.85rem; color: var(--text-light); margin-top: 5px;">
+                            ℹ️ Note: The AI service currently returns JPEG format. Format selection is for future use.
+                        </p>
+                    </div>
+                    <button type="submit" class="btn" id="createBtn" disabled>
+                        <span id="createBtnText">Generate Image (Ctrl+Enter)</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Edit Tab -->
+        <div class="tab-content" id="editTab">
+            <div class="card">
+                <h2>✏️ Edit Existing Image</h2>
+                
+                <div class="prompt-history" id="editPromptHistory"></div>
+                
+                <form id="editForm">
+                    <div class="form-group">
+                        <label>Upload Image (or paste from clipboard):</label>
+                        <input type="file" id="editImageInput" accept="image/*" style="margin-bottom: 10px;">
+                        <p style="font-size: 0.9rem; color: var(--text-light); margin-top: 5px;">
+                            💡 Tip: Press Ctrl+V to paste image from clipboard
+                        </p>
+                    </div>
+                    
+                    <!-- Image Preview -->
+                    <div id="editImagePreview" style="display: none; margin: 15px 0; position: relative;">
+                        <img id="editPreviewImage" style="max-width: 100%; max-height: 300px; border-radius: 12px; box-shadow: var(--shadow); display: block;" alt="Preview">
+                        <button type="button" onclick="clearEditImage()" style="position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; border-radius: 50%; background: var(--error); color: white; border: none; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">×</button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editPrompt">Describe your edits:</label>
+                        <textarea id="editPrompt" placeholder="Make it more colorful..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editFormat">Output Format:</label>
+                        <select id="editFormat">
+                            <option value="jpg">JPG</option>
+                            <option value="png">PNG</option>
+                            <option value="webp">WebP</option>
+                        </select>
+                        <p style="font-size: 0.85rem; color: var(--text-light); margin-top: 5px;">
+                            ℹ️ Note: The AI service currently returns JPEG format. Format selection is for future use.
+                        </p>
+                    </div>
+                    
+                    <button type="submit" class="btn" id="editBtn" disabled>
+                        <span id="editBtnText">Edit Image (Ctrl+Enter)</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Batch Tab -->
+        <div class="tab-content" id="batchTab">
+            <div class="card">
+                <h2>📦 Batch Process Multiple Images</h2>
+                
+                <div class="batch-upload-area" id="batchUploadArea">
+                    <div style="font-size: 3rem; margin-bottom: 15px;">📁</div>
+                    <p style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                        Drop multiple images here or click to browse
+                    </p>
+                    <p style="font-size: 0.9rem; color: var(--text-light);">
+                        Upload 2-10 images to process them all at once
+                    </p>
+                    <input type="file" id="batchFileInput" accept="image/*" multiple style="display: none;">
+                </div>
+
+                <div class="batch-preview-grid" id="batchPreviewGrid" style="display: none;"></div>
+
+                <form id="batchForm" style="display: none;">
+                    <div class="form-group">
+                        <label for="batchPrompt">Edit Prompt (applied to all images):</label>
+                        <textarea id="batchPrompt" placeholder="Make them more colorful..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="batchStrength">Strength:</label>
+                        <input type="range" id="batchStrength" min="0" max="100" value="80">
+                        <span id="batchStrengthValue">80%</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="batchFormat">Output Format:</label>
+                        <select id="batchFormat">
+                            <option value="jpg">JPG</option>
+                            <option value="png">PNG</option>
+                            <option value="webp">WebP</option>
+                        </select>
+                        <p style="font-size: 0.85rem; color: var(--text-light); margin-top: 5px;">
+                            ℹ️ Note: The AI service currently returns JPEG format. Format selection is for future use.
+                        </p>
+                    </div>
+                    <button type="submit" class="btn" id="batchBtn">
+                        <span id="batchBtnText">Process All Images</span>
+                    </button>
+                </form>
+
+                <div class="batch-progress" id="batchProgress" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Gallery Tab -->
+        <div class="tab-content" id="galleryTab">
+            <div class="card">
+                <h2>🖼️ Image Gallery</h2>
+                
+                <div class="gallery-header">
+                    <input type="text" class="search-bar" id="gallerySearch" placeholder="🔍 Search by prompt...">
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" onclick="filterGallery('all', this)">All</button>
+                        <button class="filter-btn" onclick="filterGallery('create', this)">Created</button>
+                        <button class="filter-btn" onclick="filterGallery('edit', this)">Edited</button>
+                    </div>
+                </div>
+
+                <div class="gallery-grid" id="galleryGrid">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🖼️</div>
+                        <h3>No images yet</h3>
+                        <p>Start creating or editing images to see them here!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Before/After Comparison -->
+        <div class="comparison-container card" id="comparisonContainer">
+            <div class="comparison-header">
+                <h3>🔄 Before & After Comparison</h3>
+                <div class="comparison-controls">
+                    <button class="icon-btn active" id="sliderViewBtn" onclick="setComparisonMode('slider')" title="Slider View">
+                        ⟷
+                    </button>
+                    <button class="icon-btn" id="sideBySideBtn" onclick="setComparisonMode('side-by-side')" title="Side by Side">
+                        ⬌
+                    </button>
+                    <button class="icon-btn" onclick="downloadComparison()" title="Download">
+                        ⬇️
+                    </button>
+                </div>
+            </div>
+
+            <div class="comparison-slider-wrapper">
+                <div class="comparison-images" id="comparisonImages">
+                    <img class="before-image" id="beforeImage" alt="Before" src="">
+                    <img class="after-image" id="afterImage" alt="After" src="">
+                    <div class="comparison-slider" id="comparisonSlider"></div>
+                    <div class="comparison-labels">
+                        <span class="comparison-label">Before</span>
+                        <span class="comparison-label">After</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-info">
+                <h3>✨ Generation Details</h3>
+                <p><strong>Prompt:</strong> <span id="comparisonPrompt">-</span></p>
+                <p><strong>Type:</strong> <span id="comparisonType">-</span></p>
+                <p><strong>Generated:</strong> <span id="comparisonTimestamp">-</span></p>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="downloadImage('afterImage')">⬇️ Download Result</button>
+                <button class="btn btn-success" onclick="viewInGallery()">🖼️ View in Gallery</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Keyboard Shortcuts Help -->
+    <div class="shortcuts-help" id="shortcutsHelp">
+        <h4>⌨️ Keyboard Shortcuts</h4>
+        <div class="shortcut-item">
+            <span>Generate/Edit</span>
+            <span class="shortcut-key">Ctrl+Enter</span>
+        </div>
+        <div class="shortcut-item">
+            <span>Download</span>
+            <span class="shortcut-key">Ctrl+D</span>
+        </div>
+        <div class="shortcut-item">
+            <span>Paste Image</span>
+            <span class="shortcut-key">Ctrl+V</span>
+        </div>
+        <div class="shortcut-item">
+            <span>Show Shortcuts</span>
+            <span class="shortcut-key">?</span>
+        </div>
+        <div class="shortcut-item">
+            <span>Close</span>
+            <span class="shortcut-key">Esc</span>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        const API_BASE = 'http://127.0.0.1:10000';
+        let currentTheme = localStorage.getItem('theme') || 'light';
+        let promptHistory = JSON.parse(localStorage.getItem('promptHistory') || '[]');
+        let galleryItems = [];
+        let currentFilter = 'all';
+        let batchFiles = [];
+        let comparisonMode = 'slider';
+        let originalImageUrl = null;
+        let currentEditedImageUrl = null;
+        let currentEditFormat = 'jpg';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            applyTheme(currentTheme);
+            setupEventListeners();
+            setupKeyboardShortcuts();
+            setupComparisonSlider();
+            loadGallery();
+            updatePromptHistory();
+            checkServerStatus();
+        });
+
+        // Theme Toggle
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            applyTheme(currentTheme);
+            localStorage.setItem('theme', currentTheme);
+        }
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            document.getElementById('themeIcon').textContent = theme === 'light' ? '🌙' : '☀️';
+        }
+
+        // Tab Switching
+        function switchTab(tabName, clickedElement) {
+            // Update tab buttons
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            if (clickedElement) {
+                clickedElement.classList.add('active');
+            } else {
+                // Find the tab button by tabName
+                const tabs = document.querySelectorAll('.nav-tab');
+                tabs.forEach(tab => {
+                    if (tab.textContent.toLowerCase().includes(tabName)) {
+                        tab.classList.add('active');
+                    }
+                });
+            }
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // Load gallery when switching to it
+            if (tabName === 'gallery') {
+                loadGallery();
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('createForm').addEventListener('submit', handleCreateImage);
+            document.getElementById('editForm').addEventListener('submit', handleEditImage);
+            document.getElementById('batchForm').addEventListener('submit', handleBatchProcess);
+            
+            // Edit image upload
+            const editInput = document.getElementById('editImageInput');
+            editInput.addEventListener('change', handleEditImageSelect);
+            
+            // Edit prompt validation
+            document.getElementById('editPrompt').addEventListener('input', validateEditForm);
+            
+            // Create prompt validation
+            document.getElementById('createPrompt').addEventListener('input', validateCreateForm);
+            
+            // Batch upload
+            const batchArea = document.getElementById('batchUploadArea');
+            const batchInput = document.getElementById('batchFileInput');
+            
+            batchArea.addEventListener('click', () => batchInput.click());
+            batchInput.addEventListener('change', handleBatchFileSelect);
+            batchArea.addEventListener('dragover', handleDragOver);
+            batchArea.addEventListener('dragleave', handleDragLeave);
+            batchArea.addEventListener('drop', handleBatchDrop);
+            
+            // Gallery search
+            document.getElementById('gallerySearch').addEventListener('input', searchGallery);
+            
+            // Batch strength slider
+            document.getElementById('batchStrength').addEventListener('input', function() {
+                document.getElementById('batchStrengthValue').textContent = this.value + '%';
+            });
+        }
+
+        // Keyboard Shortcuts
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', function(e) {
+                // Ctrl+Enter: Submit form
+                if (e.ctrlKey && e.key === 'Enter') {
+                    e.preventDefault();
+                    const activeTab = document.querySelector('.tab-content.active');
+                    if (activeTab.id === 'createTab') {
+                        const form = document.getElementById('createForm');
+                        if (!document.getElementById('createBtn').disabled) {
+                            form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+                        }
+                    } else if (activeTab.id === 'editTab') {
+                        const form = document.getElementById('editForm');
+                        if (!document.getElementById('editBtn').disabled) {
+                            form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+                        }
+                    }
+                }
+                
+                // Ctrl+V: Paste image
+                if (e.ctrlKey && e.key === 'v') {
+                    // Only handle if not in a text input
+                    if (!['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+                        handlePaste(e);
+                    }
+                }
+                
+                // ?: Show shortcuts
+                if (e.key === '?') {
+                    document.getElementById('shortcutsHelp').classList.toggle('show');
+                }
+                
+                // Esc: Close shortcuts
+                if (e.key === 'Escape') {
+                    document.getElementById('shortcutsHelp').classList.remove('show');
+                }
+            });
+            
+            // Also listen for paste event
+            document.addEventListener('paste', function(e) {
+                // Only handle if not in a text input
+                if (!['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+                    handlePaste(e);
+                }
+            });
+        }
+
+        // Paste from clipboard
+        function handlePaste(e) {
+            const items = e.clipboardData?.items;
+            if (!items) return;
+            
+            for (let item of items) {
+                if (item.type.indexOf('image') !== -1) {
+                    e.preventDefault();
+                    const file = item.getAsFile();
+                    
+                    // Create a new FileList
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    const fileInput = document.getElementById('editImageInput');
+                    fileInput.files = dataTransfer.files;
+                    
+                    // Trigger change event
+                    const event = new Event('change', { bubbles: true });
+                    fileInput.dispatchEvent(event);
+                    
+                    showToast('Image pasted from clipboard! 📋', 'success');
+                    
+                    // Switch to edit tab if not already there
+                    const editTab = document.getElementById('editTab');
+                    if (!editTab.classList.contains('active')) {
+                        switchTab('edit');
+                    }
+                    break;
+                }
+            }
+        }
+        
+        // Handle edit image selection
+        function handleEditImageSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                showEditImagePreview(file);
+                validateEditForm();
+            }
+        }
+        
+        // Show edit image preview
+        function showEditImagePreview(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('editPreviewImage').src = e.target.result;
+                document.getElementById('editImagePreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Clear edit image
+        function clearEditImage() {
+            document.getElementById('editImageInput').value = '';
+            document.getElementById('editImagePreview').style.display = 'none';
+            validateEditForm();
+            showToast('Image removed', 'info');
+        }
+        
+        // Validate edit form
+        function validateEditForm() {
+            const hasImage = document.getElementById('editImageInput').files.length > 0;
+            const hasPrompt = document.getElementById('editPrompt').value.trim().length > 0;
+            document.getElementById('editBtn').disabled = !(hasImage && hasPrompt);
+        }
+        
+        // Validate create form
+        function validateCreateForm() {
+            const hasPrompt = document.getElementById('createPrompt').value.trim().length > 0;
+            document.getElementById('createBtn').disabled = !hasPrompt;
+        }
+
+        // Prompt History
+        function addToPromptHistory(prompt, type) {
+            if (!prompt || prompt.length < 3) return;
+            
+            // Remove duplicates
+            promptHistory = promptHistory.filter(p => p.text !== prompt);
+            
+            // Add to beginning
+            promptHistory.unshift({ text: prompt, type, timestamp: Date.now() });
+            
+            // Keep only last 10
+            promptHistory = promptHistory.slice(0, 10);
+            
+            localStorage.setItem('promptHistory', JSON.stringify(promptHistory));
+            updatePromptHistory();
+        }
+
+        function updatePromptHistory() {
+            ['create', 'edit'].forEach(type => {
+                const container = document.getElementById(`${type}PromptHistory`);
+                const filtered = promptHistory.filter(p => p.type === type).slice(0, 5);
+                
+                if (filtered.length === 0) {
+                    container.innerHTML = '';
+                    return;
+                }
+                
+                container.innerHTML = filtered.map((p, index) => `
+                    <div class="prompt-history-item" onclick="usePromptFromHistory('${type}', ${index})">
+                        🕐 ${p.text.substring(0, 30)}${p.text.length > 30 ? '...' : ''}
+                    </div>
+                `).join('');
+            });
+        }
+
+        function usePromptFromHistory(type, index) {
+            const filtered = promptHistory.filter(p => p.type === type);
+            if (index >= filtered.length) return;
+            
+            const prompt = filtered[index].text;
+            const promptField = document.getElementById(`${type}Prompt`);
+            promptField.value = prompt;
+            
+            // Trigger validation
+            if (type === 'create') {
+                validateCreateForm();
+            } else if (type === 'edit') {
+                validateEditForm();
+            }
+            
+            showToast('Prompt loaded from history! 📝', 'info');
+        }
+
+        // Handle create image
+        async function handleCreateImage(e) {
+            e.preventDefault();
+            
+            const prompt = document.getElementById('createPrompt').value;
+            const format = document.getElementById('createFormat').value;
+            
+            const createBtn = document.getElementById('createBtn');
+            const btnText = document.getElementById('createBtnText');
+            
+            createBtn.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span> Generating...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/v1/image/generations`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt, format })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Create response:', data);
+                    const imageUrl = data.data[0].url;
+                    
+                    const galleryItem = {
+                        id: Date.now().toString(),
+                        type: 'create',
+                        prompt,
+                        format,
+                        imageUrl,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    console.log('Adding to gallery:', galleryItem);
+                    
+                    // Add to gallery
+                    const added = await addToGallery(galleryItem);
+                    console.log('Gallery add result:', added);
+                    
+                    // Add to prompt history
+                    addToPromptHistory(prompt, 'create');
+                    
+                    showToast('Image generated successfully! 🎉', 'success');
+                    
+                    // Reload gallery and switch
+                    console.log('Loading gallery...');
+                    await loadGallery();
+                    console.log('Gallery items:', galleryItems.length);
+                    
+                    setTimeout(() => {
+                        switchTab('gallery');
+                    }, 300);
+                } else {
+                    const errorText = await response.text();
+                    console.error('Create error:', response.status, errorText);
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+            } catch (error) {
+                showToast(`Error: ${error.message}`, 'error');
+            } finally {
+                createBtn.disabled = false;
+                btnText.textContent = 'Generate Image (Ctrl+Enter)';
+            }
+        }
+
+        // Handle edit image
+        async function handleEditImage(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('editImageInput');
+            const prompt = document.getElementById('editPrompt').value;
+            const format = document.getElementById('editFormat').value;
+            
+            if (!fileInput.files[0]) {
+                showToast('Please select an image to edit', 'warning');
+                return;
+            }
+            
+            const editBtn = document.getElementById('editBtn');
+            const btnText = document.getElementById('editBtnText');
+            
+            editBtn.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span> Processing...';
+            
+            try {
+                // Upload image
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                
+                const uploadResponse = await fetch(`${API_BASE}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!uploadResponse.ok) throw new Error('Upload failed');
+                
+                const uploadData = await uploadResponse.json();
+                const imageUrl = uploadData.url;
+                
+                // Edit image
+                const response = await fetch(`${API_BASE}/v1/image/generations`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt, image_url: imageUrl, format })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const editedImageUrl = data.data[0].url;
+                    
+                    // Add to gallery
+                    await addToGallery({
+                        id: Date.now().toString(),
+                        type: 'edit',
+                        prompt,
+                        format,
+                        imageUrl: editedImageUrl,
+                        originalImage: imageUrl,
+                        timestamp: new Date().toISOString()
+                    });
+                    
+                    // Add to prompt history
+                    addToPromptHistory(prompt, 'edit');
+                    
+                    showToast('Image edited successfully! 🎉', 'success');
+                    
+                    // Show comparison slider with format
+                    showComparison(imageUrl, editedImageUrl, prompt, 'Edit', format);
+                    
+                    // Also reload gallery
+                    await loadGallery();
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                showToast(`Error: ${error.message}`, 'error');
+            } finally {
+                editBtn.disabled = false;
+                btnText.textContent = 'Edit Image (Ctrl+Enter)';
+            }
+        }
+
+        // Batch Processing
+        function handleBatchFileSelect(e) {
+            batchFiles = Array.from(e.target.files);
+            displayBatchPreviews();
+        }
+
+        function handleBatchDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+            batchFiles = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+            displayBatchPreviews();
+        }
+
+        function displayBatchPreviews() {
+            const grid = document.getElementById('batchPreviewGrid');
+            const form = document.getElementById('batchForm');
+            
+            if (batchFiles.length === 0) {
+                grid.style.display = 'none';
+                form.style.display = 'none';
+                return;
+            }
+            
+            grid.style.display = 'grid';
+            form.style.display = 'block';
+            
+            grid.innerHTML = batchFiles.map((file, index) => {
+                const url = URL.createObjectURL(file);
+                return `
+                    <div class="batch-preview-item">
+                        <img src="${url}" class="batch-preview-image">
+                        <button class="batch-remove-btn" onclick="removeBatchFile(${index})">×</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function removeBatchFile(index) {
+            batchFiles.splice(index, 1);
+            displayBatchPreviews();
+        }
+
+        async function handleBatchProcess(e) {
+            e.preventDefault();
+            
+            if (batchFiles.length === 0) {
+                showToast('Please select images first', 'warning');
+                return;
+            }
+            
+            const prompt = document.getElementById('batchPrompt').value;
+            const strength = document.getElementById('batchStrength').value / 100;
+            const format = document.getElementById('batchFormat').value;
+            
+            const btn = document.getElementById('batchBtn');
+            const btnText = document.getElementById('batchBtnText');
+            const progressDiv = document.getElementById('batchProgress');
+            
+            btn.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span> Processing...';
+            progressDiv.style.display = 'block';
+            progressDiv.innerHTML = '';
+            
+            try {
+                const formData = new FormData();
+                batchFiles.forEach(file => formData.append('files', file));
+                formData.append('prompt', prompt);
+                formData.append('strength', strength);
+                formData.append('format', format);
+                
+                // Show progress for each file
+                batchFiles.forEach((file, i) => {
+                    const url = URL.createObjectURL(file);
+                    progressDiv.innerHTML += `
+                        <div class="batch-progress-item" id="batchItem${i}">
+                            <img src="${url}" class="batch-progress-image">
+                            <div class="batch-progress-info">
+                                <div>${file.name}</div>
+                                <div class="batch-progress-bar">
+                                    <div class="batch-progress-fill" id="batchProgress${i}"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                const response = await fetch(`${API_BASE}/v1/batch`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Add all to gallery
+                    for (let result of data.results) {
+                        if (result.status === 'success') {
+                            await addToGallery({
+                                id: Date.now().toString() + Math.random(),
+                                type: 'batch',
+                                prompt,
+                                format,
+                                imageUrl: result.edited,
+                                originalImage: result.original,
+                                timestamp: new Date().toISOString()
+                            });
+                        }
+                    }
+                    
+                    showToast(`Batch complete! ${data.results.length} images processed 🎉`, 'success');
+                    
+                    // Reset
+                    batchFiles = [];
+                    displayBatchPreviews();
+                    document.getElementById('batchPrompt').value = '';
+                    
+                    // Reload gallery and switch
+                    await loadGallery();
+                    setTimeout(() => {
+                        switchTab('gallery');
+                    }, 300);
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                showToast(`Error: ${error.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+                btnText.textContent = 'Process All Images';
+                setTimeout(() => {
+                    progressDiv.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Gallery
+        async function loadGallery() {
+            try {
+                const response = await fetch(`${API_BASE}/v1/gallery`);
+                if (response.ok) {
+                    const data = await response.json();
+                    galleryItems = data.items || [];
+                    displayGallery();
+                }
+            } catch (error) {
+                console.error('Failed to load gallery:', error);
+            }
+        }
+
+        async function addToGallery(item) {
+            try {
+                const response = await fetch(`${API_BASE}/v1/gallery`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(item)
+                });
+                
+                if (response.ok) {
+                    galleryItems.unshift(item);
+                    console.log('Added to gallery:', item);
+                    return true;
+                }
+            } catch (error) {
+                console.error('Failed to add to gallery:', error);
+            }
+            return false;
+        }
+
+        function displayGallery() {
+            const grid = document.getElementById('galleryGrid');
+            
+            let filtered = galleryItems;
+            
+            // Apply filter
+            if (currentFilter !== 'all') {
+                filtered = galleryItems.filter(item => item.type === currentFilter);
+            }
+            
+            // Apply search
+            const searchTerm = document.getElementById('gallerySearch').value.toLowerCase();
+            if (searchTerm) {
+                filtered = filtered.filter(item => 
+                    item.prompt?.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🖼️</div>
+                        <h3>No images found</h3>
+                        <p>Try a different search or filter</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = filtered.map(item => `
+                <div class="gallery-item">
+                    <img src="${item.imageUrl}" class="gallery-item-image" alt="${item.prompt}">
+                    <div class="gallery-item-info">
+                        <div class="gallery-item-prompt">${item.prompt || 'No prompt'}</div>
+                        <div class="gallery-item-meta">
+                            ${item.type} • ${new Date(item.timestamp).toLocaleDateString()}
+                        </div>
+                        <div class="gallery-item-actions">
+                            <button class="icon-btn-small" onclick="downloadGalleryImage('${item.imageUrl}')">⬇️</button>
+                            <button class="icon-btn-small danger" onclick="deleteGalleryItem('${item.id}')">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterGallery(filter, clickedElement) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            if (clickedElement) {
+                clickedElement.classList.add('active');
+            }
+            displayGallery();
+        }
+
+        function searchGallery() {
+            displayGallery();
+        }
+
+        async function deleteGalleryItem(id) {
+            if (!confirm('Delete this image?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/v1/gallery/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    galleryItems = galleryItems.filter(item => item.id !== id);
+                    displayGallery();
+                    showToast('Image deleted', 'info');
+                }
+            } catch (error) {
+                showToast('Failed to delete', 'error');
+            }
+        }
+
+        function downloadGalleryImage(url) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `nano-banana-${Date.now()}.jpg`;
+            link.click();
+            showToast('Download started! 📥', 'success');
+        }
+
+        // Drag & Drop
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('dragover');
+        }
+
+        // Utilities
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const icons = {
+                success: '✅',
+                error: '❌',
+                info: 'ℹ️',
+                warning: '⚠️'
+            };
+            
+            toast.innerHTML = `<span style="font-size: 1.2rem;">${icons[type]}</span> ${message}`;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
+        async function checkServerStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                if (!response.ok) throw new Error('Server not responding');
+                showToast('Connected to server! 🚀', 'success');
+            } catch (error) {
+                showToast('⚠️ Server not running. Start with: python main.py', 'error');
+            }
+        }
+
+        // Before/After Comparison Slider Functions
+        function setupComparisonSlider() {
+            const slider = document.getElementById('comparisonSlider');
+            const afterImage = document.getElementById('afterImage');
+            const container = document.getElementById('comparisonImages');
+            
+            if (!slider || !afterImage || !container) return;
+            
+            let isDragging = false;
+            
+            slider.addEventListener('mousedown', () => isDragging = true);
+            document.addEventListener('mouseup', () => isDragging = false);
+            
+            container.addEventListener('mousemove', (e) => {
+                if (!isDragging && comparisonMode === 'slider') return;
+                if (comparisonMode !== 'slider') return;
+                
+                const rect = container.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const percentage = (x / rect.width) * 100;
+                
+                if (percentage >= 0 && percentage <= 100) {
+                    slider.style.left = percentage + '%';
+                    afterImage.style.clipPath = `inset(0 ${100 - percentage}% 0 0)`;
+                }
+            });
+            
+            container.addEventListener('click', (e) => {
+                if (comparisonMode !== 'slider') return;
+                
+                const rect = container.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const percentage = (x / rect.width) * 100;
+                
+                slider.style.left = percentage + '%';
+                afterImage.style.clipPath = `inset(0 ${100 - percentage}% 0 0)`;
+            });
+        }
+
+        function setComparisonMode(mode) {
+            comparisonMode = mode;
+            const container = document.getElementById('comparisonImages');
+            const slider = document.getElementById('comparisonSlider');
+            const sliderBtn = document.getElementById('sliderViewBtn');
+            const sideBtn = document.getElementById('sideBySideBtn');
+            
+            if (mode === 'slider') {
+                container.classList.remove('side-by-side');
+                slider.style.display = 'block';
+                sliderBtn.classList.add('active');
+                sideBtn.classList.remove('active');
+            } else {
+                container.classList.add('side-by-side');
+                slider.style.display = 'none';
+                sliderBtn.classList.remove('active');
+                sideBtn.classList.add('active');
+            }
+        }
+
+        function showComparison(beforeUrl, afterUrl, prompt, type, format) {
+            const container = document.getElementById('comparisonContainer');
+            const beforeImg = document.getElementById('beforeImage');
+            const afterImg = document.getElementById('afterImage');
+            
+            // Store current image URL and format for download
+            currentEditedImageUrl = afterUrl;
+            currentEditFormat = format || 'jpg';
+            
+            if (beforeUrl) {
+                beforeImg.src = beforeUrl;
+                beforeImg.style.display = 'block';
+            } else {
+                beforeImg.style.display = 'none';
+            }
+            
+            afterImg.src = afterUrl;
+            
+            document.getElementById('comparisonPrompt').textContent = prompt || '-';
+            document.getElementById('comparisonType').textContent = type || '-';
+            document.getElementById('comparisonTimestamp').textContent = new Date().toLocaleString();
+            
+            container.style.display = 'block';
+            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function downloadComparison() {
+            if (currentEditedImageUrl) {
+                // Extract actual extension from URL
+                const urlParts = currentEditedImageUrl.split('.');
+                const actualExtension = urlParts[urlParts.length - 1].split('?')[0]; // Remove query params
+                
+                const link = document.createElement('a');
+                link.href = currentEditedImageUrl;
+                link.download = `nano-banana-${Date.now()}.${actualExtension}`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showToast(`Download started! 📥 (${actualExtension.toUpperCase()})`, 'success');
+            } else {
+                showToast('No image to download', 'warning');
+            }
+        }
+        
+        function downloadImage(imageId) {
+            const img = document.getElementById(imageId);
+            if (img && img.src) {
+                // Extract actual extension from URL
+                const urlParts = img.src.split('.');
+                const actualExtension = urlParts[urlParts.length - 1].split('?')[0];
+                
+                const link = document.createElement('a');
+                link.href = img.src;
+                link.download = `nano-banana-${Date.now()}.${actualExtension}`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showToast(`Download started! 📥 (${actualExtension.toUpperCase()})`, 'success');
+            }
+        }
+
+        function viewInGallery() {
+            switchTab('gallery');
+        }
+    </script>
+</body>
+</html>
