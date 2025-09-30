@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Endpoints</title>
+</head>
+<body>
+    <h1>Endpoint Tests</h1>
+    <button onclick="testHealth()">Test Health</button>
+    <button onclick="testGallery()">Test Gallery GET</button>
+    <button onclick="testBatch()">Test Batch (will fail without files)</button>
+    <div id="results" style="margin-top: 20px; white-space: pre-wrap;"></div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:10000';
+
+        async function testHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                document.getElementById('results').textContent = 
+                    `Health: ${response.status}\n${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                document.getElementById('results').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function testGallery() {
+            try {
+                const response = await fetch(`${API_BASE}/v1/gallery`);
+                const data = await response.json();
+                document.getElementById('results').textContent = 
+                    `Gallery: ${response.status}\n${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                document.getElementById('results').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function testBatch() {
+            try {
+                const formData = new FormData();
+                formData.append('prompt', 'test');
+                const response = await fetch(`${API_BASE}/v1/batch`, {
+                    method: 'POST',
+                    body: formData
+                });
+                document.getElementById('results').textContent = 
+                    `Batch: ${response.status}\n${await response.text()}`;
+            } catch (error) {
+                document.getElementById('results').textContent = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

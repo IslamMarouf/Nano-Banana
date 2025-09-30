@@ -76,6 +76,12 @@ FALLBACK_ENABLED = True
 # Progress tracking dictionary
 generation_progress = {}
 
+# Gallery storage (in-memory for now, can be moved to database)
+gallery_items = []
+
+# Batch processing queue
+batch_queue = {}
+
 
 def upload_image_to_uguu(image_url: str) -> str:
     """Download image and upload to uguu.se"""
@@ -659,6 +665,12 @@ async def health_check():
 
 @app.get("/web", summary="Web Interface", description="Serve the web interface")
 async def serve_web_interface():
+    """Serve the ULTIMATE web interface with gallery, batch processing, and all features"""
+    html_path = os.path.join(os.path.dirname(__file__), "web_interface_v4.html")
+    return FileResponse(html_path)
+
+@app.get("/web/v3", summary="Web Interface V3", description="Serve the PRO web interface")
+async def serve_web_interface_v3():
     """Serve the PRO web interface with advanced controls and comparison slider"""
     html_path = os.path.join(os.path.dirname(__file__), "web_interface_v3.html")
     return FileResponse(html_path)
@@ -686,6 +698,97 @@ async def get_progress(task_id: str):
     if task_id in generation_progress:
         return generation_progress[task_id]
     return {"status": "not_found", "progress": 0, "message": "Task not found"}
+
+@app.get("/v1/gallery", summary="Get Gallery", description="Get all gallery items")
+async def get_gallery():
+    """Get all gallery items"""
+    return {"items": gallery_items, "total": len(gallery_items)}
+
+@app.post("/v1/gallery", summary="Add to Gallery", description="Add item to gallery")
+async def add_to_gallery(item: dict):
+    """Add item to gallery"""
+    gallery_items.insert(0, item)
+    # Keep only last 100 items
+    if len(gallery_items) > 100:
+        gallery_items.pop()
+    return {"success": True, "total": len(gallery_items)}
+
+@app.delete("/v1/gallery/{item_id}", summary="Delete from Gallery", description="Delete item from gallery")
+async def delete_from_gallery(item_id: str):
+    """Delete item from gallery"""
+    global gallery_items
+    gallery_items = [item for item in gallery_items if item.get("id") != item_id]
+    return {"success": True, "total": len(gallery_items)}
+
+@app.post("/v1/batch", summary="Batch Process Images", description="Process multiple images at once")
+async def batch_process(files: List[UploadFile] = File(...), prompt: str = Form(...), 
+                       strength: float = Form(0.8), format: str = Form("jpg")):
+    """Process multiple images with the same prompt"""
+    batch_id = str(uuid.uuid4())
+    batch_queue[batch_id] = {
+        "status": "processing",
+        "total": len(files),
+        "completed": 0,
+        "results": []
+    }
+    
+    try:
+        for i, file in enumerate(files):
+            try:
+                # Upload file
+                content = await file.read()
+                timestamp = int(time.time())
+                filename = f"batch_{timestamp}_{i}_{file.filename}"
+                filepath = os.path.join("uploads", filename)
+                
+                with open(filepath, "wb") as buffer:
+                    buffer.write(content)
+                
+                # Upload to uguu.se
+                image_data = io.BytesIO(content)
+                files_dict = {"files[]": (filename, image_data, file.content_type)}
+                
+                upload_response = requests.post("https://uguu.se/upload", files=files_dict, timeout=30)
+                
+                if upload_response.status_code == 200:
+                    data = upload_response.json()
+                    if data.get("success") and data.get("files"):
+                        image_url = data["files"][0].get("url")
+                        
+                        # Generate edited image
+                        task_id = str(uuid.uuid4())
+                        edited_url = await provider.generate_image(prompt, image_url, task_id)
+                        
+                        batch_queue[batch_id]["results"].append({
+                            "original": image_url,
+                            "edited": edited_url,
+                            "status": "success"
+                        })
+                        batch_queue[batch_id]["completed"] += 1
+                
+            except Exception as e:
+                logger.error(f"Batch item {i} failed: {e}")
+                batch_queue[batch_id]["results"].append({
+                    "original": None,
+                    "edited": None,
+                    "status": "failed",
+                    "error": str(e)
+                })
+                batch_queue[batch_id]["completed"] += 1
+        
+        batch_queue[batch_id]["status"] = "complete"
+        return {"batch_id": batch_id, "results": batch_queue[batch_id]["results"]}
+        
+    except Exception as e:
+        batch_queue[batch_id]["status"] = "failed"
+        raise HTTPException(status_code=500, detail=f"Batch processing failed: {str(e)}")
+
+@app.get("/v1/batch/{batch_id}", summary="Get Batch Status", description="Get batch processing status")
+async def get_batch_status(batch_id: str):
+    """Get batch processing status"""
+    if batch_id in batch_queue:
+        return batch_queue[batch_id]
+    return {"status": "not_found"}
 
 @app.post("/upload", summary="Upload File", description="Upload an image file for editing")
 async def upload_file(file: UploadFile = File(...)):
