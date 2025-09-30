@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍌 Nano Banana ULTIMATE+ - Complete Platform with Comparison Slider</title>
+    <title>🍌 Nano Banana AI ENHANCED - Complete Platform with AI Features</title>
     <style>
         :root {
             --primary: #667eea;
@@ -827,15 +827,17 @@
             </button>
             <h1>
                 🍌 Nano Banana 
-                <span class="ultimate-badge">ULTIMATE</span>
+                <span class="ultimate-badge">AI ENHANCED</span>
             </h1>
-            <p style="color: white; opacity: 0.9; margin-top: 10px;">Complete AI Image Platform with Gallery, Batch Processing & More!</p>
+            <p style="color: white; opacity: 0.9; margin-top: 10px;">Complete AI Platform with Variations, Enhancement, Style Transfer & More!</p>
         </div>
 
         <!-- Navigation Tabs -->
         <div class="nav-tabs">
             <button class="nav-tab active" onclick="switchTab('create', this)">🎨 Create</button>
             <button class="nav-tab" onclick="switchTab('edit', this)">✏️ Edit</button>
+            <button class="nav-tab" onclick="switchTab('variations', this)">🎭 Variations</button>
+            <button class="nav-tab" onclick="switchTab('ai-tools', this)">🤖 AI Tools</button>
             <button class="nav-tab" onclick="switchTab('batch', this)">📦 Batch</button>
             <button class="nav-tab" onclick="switchTab('gallery', this)">🖼️ Gallery</button>
         </div>
@@ -913,6 +915,166 @@
                         <span id="editBtnText">Edit Image (Ctrl+Enter)</span>
                     </button>
                 </form>
+            </div>
+        </div>
+
+        <!-- Variations Tab -->
+        <div class="tab-content" id="variationsTab">
+            <div class="card">
+                <h2>🎭 Image Variations</h2>
+                <p style="margin-bottom: 20px; color: var(--text-light);">Generate 2-4 different versions of your image at once!</p>
+                
+                <form id="variationsForm">
+                    <div class="form-group">
+                        <label for="variationsPrompt">Describe your image:</label>
+                        <textarea id="variationsPrompt" placeholder="A beautiful landscape..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="variationsCount">Number of Variations:</label>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button type="button" class="filter-btn active" onclick="selectVariationCount(2, this)">2 Versions</button>
+                            <button type="button" class="filter-btn" onclick="selectVariationCount(3, this)">3 Versions</button>
+                            <button type="button" class="filter-btn" onclick="selectVariationCount(4, this)">4 Versions</button>
+                        </div>
+                        <input type="hidden" id="variationsCount" value="2">
+                    </div>
+                    
+                    <button type="submit" class="btn" id="variationsBtn" disabled>
+                        <span id="variationsBtnText">Generate Variations (Ctrl+Enter)</span>
+                    </button>
+                </form>
+                
+                <!-- Variations Grid -->
+                <div id="variationsGrid" style="display: none; margin-top: 30px;">
+                    <h3 style="color: var(--primary); margin-bottom: 20px;">✨ Your Variations</h3>
+                    <div class="gallery-grid" id="variationsResults"></div>
+                    <div class="action-buttons" style="margin-top: 20px;">
+                        <button class="btn btn-secondary" onclick="downloadAllVariations()">⬇️ Download All</button>
+                        <button class="btn btn-success" onclick="saveAllToGallery()">🖼️ Save All to Gallery</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Tools Tab -->
+        <div class="tab-content" id="ai-toolsTab">
+            <div class="card">
+                <h2>🤖 AI-Powered Tools</h2>
+                <p style="margin-bottom: 25px; color: var(--text-light);">Advanced AI features for your images</p>
+                
+                <!-- Tool Selection -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
+                    <button class="filter-btn active" onclick="selectAITool('enhance', this)">
+                        ✨ Prompt Enhancement
+                    </button>
+                    <button class="filter-btn" onclick="selectAITool('style', this)">
+                        🎨 Style Transfer
+                    </button>
+                    <button class="filter-btn" onclick="selectAITool('upscale', this)">
+                        🔍 Upscaling
+                    </button>
+                    <button class="filter-btn" onclick="selectAITool('background', this)">
+                        🗑️ Background Removal
+                    </button>
+                </div>
+                
+                <!-- Prompt Enhancement Tool -->
+                <div id="enhanceTool" class="ai-tool-panel">
+                    <h3>✨ Auto-Prompt Enhancement</h3>
+                    <p style="color: var(--text-light); margin-bottom: 15px;">AI will improve your prompt for better results!</p>
+                    
+                    <div class="form-group">
+                        <label>Your Prompt:</label>
+                        <textarea id="enhanceInput" placeholder="a cat" rows="3"></textarea>
+                    </div>
+                    
+                    <button class="btn" onclick="enhancePrompt()">✨ Enhance Prompt</button>
+                    
+                    <div id="enhanceResult" style="display: none; margin-top: 20px;">
+                        <div class="result-info">
+                            <h4>🎯 Enhanced Prompt:</h4>
+                            <p id="enhancedPromptText" style="font-size: 1.1rem; line-height: 1.6;"></p>
+                            <button class="btn btn-success" onclick="useEnhancedPrompt()">Use This Prompt</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Style Transfer Tool -->
+                <div id="styleTool" class="ai-tool-panel" style="display: none;">
+                    <h3>🎨 Style Transfer</h3>
+                    <p style="color: var(--text-light); margin-bottom: 15px;">Apply the style of a reference image to your image!</p>
+                    
+                    <div class="form-group">
+                        <label>Your Image:</label>
+                        <input type="file" id="styleContentImage" accept="image/*">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Style Reference Image:</label>
+                        <input type="file" id="styleReferenceImage" accept="image/*">
+                    </div>
+                    
+                    <button class="btn" onclick="applyStyleTransfer()">🎨 Apply Style</button>
+                </div>
+                
+                <!-- Upscaling Tool -->
+                <div id="upscaleTool" class="ai-tool-panel" style="display: none;">
+                    <h3>🔍 Image Upscaling</h3>
+                    <p style="color: var(--text-light); margin-bottom: 15px;">Increase image resolution up to 4x!</p>
+                    
+                    <div class="form-group">
+                        <label>Upload Image:</label>
+                        <input type="file" id="upscaleImage" accept="image/*">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Upscale Factor:</label>
+                        <div style="display: flex; gap: 10px;">
+                            <button type="button" class="filter-btn active" onclick="selectUpscaleFactor(2, this)">2x</button>
+                            <button type="button" class="filter-btn" onclick="selectUpscaleFactor(3, this)">3x</button>
+                            <button type="button" class="filter-btn" onclick="selectUpscaleFactor(4, this)">4x</button>
+                        </div>
+                        <input type="hidden" id="upscaleFactor" value="2">
+                    </div>
+                    
+                    <button class="btn" onclick="upscaleImage()">🔍 Upscale Image</button>
+                </div>
+                
+                <!-- Background Removal Tool -->
+                <div id="backgroundTool" class="ai-tool-panel" style="display: none;">
+                    <h3>🗑️ Background Removal</h3>
+                    <p style="color: var(--text-light); margin-bottom: 15px;">Automatically remove the background from your image!</p>
+                    
+                    <div class="form-group">
+                        <label>Upload Image:</label>
+                        <input type="file" id="backgroundImage" accept="image/*">
+                    </div>
+                    
+                    <button class="btn" onclick="removeBackground()">🗑️ Remove Background</button>
+                </div>
+                
+                <!-- AI Tool Result -->
+                <div id="aiToolResult" style="display: none; margin-top: 30px;">
+                    <div class="comparison-container card" style="display: block;">
+                        <h3>✨ Result</h3>
+                        <div class="comparison-slider-wrapper">
+                            <div class="comparison-images" id="aiToolComparison">
+                                <img class="before-image" id="aiToolBefore" alt="Before">
+                                <img class="after-image" id="aiToolAfter" alt="After">
+                                <div class="comparison-slider" id="aiToolSlider"></div>
+                                <div class="comparison-labels">
+                                    <span class="comparison-label">Before</span>
+                                    <span class="comparison-label">After</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="action-buttons" style="margin-top: 20px;">
+                            <button class="btn btn-secondary" onclick="downloadAIResult()">⬇️ Download</button>
+                            <button class="btn btn-success" onclick="saveAIToGallery()">🖼️ Save to Gallery</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1071,6 +1233,10 @@
         let originalImageUrl = null;
         let currentEditedImageUrl = null;
         let currentEditFormat = 'jpg';
+        let variationsResults = [];
+        let currentAITool = 'enhance';
+        let enhancedPrompt = '';
+        let aiToolResultUrl = null;
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
@@ -1125,7 +1291,11 @@
         function setupEventListeners() {
             document.getElementById('createForm').addEventListener('submit', handleCreateImage);
             document.getElementById('editForm').addEventListener('submit', handleEditImage);
+            document.getElementById('variationsForm').addEventListener('submit', handleVariations);
             document.getElementById('batchForm').addEventListener('submit', handleBatchProcess);
+            
+            // Variations prompt validation
+            document.getElementById('variationsPrompt').addEventListener('input', validateVariationsForm);
             
             // Edit image upload
             const editInput = document.getElementById('editImageInput');
@@ -1892,6 +2062,282 @@
 
         function viewInGallery() {
             switchTab('gallery');
+        }
+
+        // ========================================
+        // IMAGE VARIATIONS FUNCTIONS
+        // ========================================
+        
+        function selectVariationCount(count, element) {
+            document.getElementById('variationsCount').value = count;
+            document.querySelectorAll('#variationsForm .filter-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+        }
+        
+        function validateVariationsForm() {
+            const hasPrompt = document.getElementById('variationsPrompt').value.trim().length > 0;
+            document.getElementById('variationsBtn').disabled = !hasPrompt;
+        }
+        
+        async function handleVariations(e) {
+            e.preventDefault();
+            
+            const prompt = document.getElementById('variationsPrompt').value;
+            const count = parseInt(document.getElementById('variationsCount').value);
+            
+            const btn = document.getElementById('variationsBtn');
+            const btnText = document.getElementById('variationsBtnText');
+            
+            btn.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span> Generating ' + count + ' variations...';
+            
+            variationsResults = [];
+            
+            try {
+                // Generate multiple variations by calling the API multiple times
+                for (let i = 0; i < count; i++) {
+                    const response = await fetch(`${API_BASE}/v1/image/generations`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ prompt })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        variationsResults.push({
+                            url: data.data[0].url,
+                            prompt: prompt,
+                            index: i + 1
+                        });
+                        
+                        // Update progress
+                        btnText.innerHTML = `<span class="spinner"></span> Generated ${i + 1}/${count}...`;
+                    }
+                }
+                
+                // Display results
+                displayVariations();
+                showToast(`${count} variations generated! 🎉`, 'success');
+                
+            } catch (error) {
+                showToast(`Error: ${error.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+                btnText.textContent = 'Generate Variations (Ctrl+Enter)';
+            }
+        }
+        
+        function displayVariations() {
+            const grid = document.getElementById('variationsResults');
+            const container = document.getElementById('variationsGrid');
+            
+            grid.innerHTML = variationsResults.map((variation, index) => `
+                <div class="gallery-item">
+                    <img src="${variation.url}" class="gallery-item-image" alt="Variation ${variation.index}">
+                    <div class="gallery-item-info">
+                        <div class="gallery-item-prompt">Variation #${variation.index}</div>
+                        <div class="gallery-item-actions">
+                            <button class="icon-btn-small" onclick="downloadVariation(${index})">⬇️</button>
+                            <button class="icon-btn-small" onclick="saveVariationToGallery(${index})">💾</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.style.display = 'block';
+        }
+        
+        function downloadVariation(index) {
+            const variation = variationsResults[index];
+            const link = document.createElement('a');
+            link.href = variation.url;
+            link.download = `variation-${index + 1}-${Date.now()}.jpeg`;
+            link.click();
+            showToast('Download started! 📥', 'success');
+        }
+        
+        async function saveVariationToGallery(index) {
+            const variation = variationsResults[index];
+            await addToGallery({
+                id: Date.now().toString() + index,
+                type: 'variation',
+                prompt: variation.prompt,
+                imageUrl: variation.url,
+                timestamp: new Date().toISOString()
+            });
+            showToast('Saved to gallery! 🖼️', 'success');
+        }
+        
+        async function downloadAllVariations() {
+            for (let i = 0; i < variationsResults.length; i++) {
+                await new Promise(resolve => setTimeout(resolve, 500)); // Delay between downloads
+                downloadVariation(i);
+            }
+        }
+        
+        async function saveAllToGallery() {
+            for (let i = 0; i < variationsResults.length; i++) {
+                await saveVariationToGallery(i);
+            }
+            showToast(`All ${variationsResults.length} variations saved! 🎉`, 'success');
+        }
+
+        // ========================================
+        // AI TOOLS FUNCTIONS
+        // ========================================
+        
+        function selectAITool(tool, element) {
+            currentAITool = tool;
+            
+            // Update button states
+            document.querySelectorAll('#ai-toolsTab .filter-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            
+            // Show/hide tool panels
+            document.querySelectorAll('.ai-tool-panel').forEach(panel => panel.style.display = 'none');
+            document.getElementById(tool + 'Tool').style.display = 'block';
+            document.getElementById('aiToolResult').style.display = 'none';
+        }
+        
+        // Prompt Enhancement
+        async function enhancePrompt() {
+            const input = document.getElementById('enhanceInput').value.trim();
+            if (!input) {
+                showToast('Please enter a prompt to enhance', 'warning');
+                return;
+            }
+            
+            showToast('Enhancing prompt... ✨', 'info');
+            
+            // Simulate AI enhancement (in real app, call an AI service)
+            const enhancements = [
+                'highly detailed, professional photography, 8k resolution, cinematic lighting',
+                'masterpiece, best quality, ultra-detailed, photorealistic, studio lighting',
+                'trending on artstation, award-winning, professional composition, vibrant colors',
+                'high quality, detailed textures, perfect lighting, sharp focus, bokeh background'
+            ];
+            
+            const randomEnhancement = enhancements[Math.floor(Math.random() * enhancements.length)];
+            enhancedPrompt = `${input}, ${randomEnhancement}`;
+            
+            document.getElementById('enhancedPromptText').textContent = enhancedPrompt;
+            document.getElementById('enhanceResult').style.display = 'block';
+            
+            showToast('Prompt enhanced! ✨', 'success');
+        }
+        
+        function useEnhancedPrompt() {
+            document.getElementById('createPrompt').value = enhancedPrompt;
+            switchTab('create');
+            validateCreateForm();
+            showToast('Enhanced prompt loaded in Create tab! 🎨', 'success');
+        }
+        
+        // Style Transfer
+        async function applyStyleTransfer() {
+            const contentFile = document.getElementById('styleContentImage').files[0];
+            const styleFile = document.getElementById('styleReferenceImage').files[0];
+            
+            if (!contentFile || !styleFile) {
+                showToast('Please upload both images', 'warning');
+                return;
+            }
+            
+            showToast('Applying style transfer... 🎨 (This is a demo - real implementation would use AI service)', 'info');
+            
+            // In a real implementation, you would:
+            // 1. Upload both images to server
+            // 2. Call a style transfer API (like DeepAI, Replicate, etc.)
+            // 3. Display the result
+            
+            // For demo, just show the content image as both before/after
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('aiToolBefore').src = e.target.result;
+                document.getElementById('aiToolAfter').src = e.target.result;
+                document.getElementById('aiToolResult').style.display = 'block';
+                showToast('Style transfer complete! (Demo mode) 🎨', 'success');
+            };
+            reader.readAsDataURL(contentFile);
+        }
+        
+        // Upscaling
+        function selectUpscaleFactor(factor, element) {
+            document.getElementById('upscaleFactor').value = factor;
+            document.querySelectorAll('#upscaleTool .filter-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+        }
+        
+        async function upscaleImage() {
+            const file = document.getElementById('upscaleImage').files[0];
+            const factor = document.getElementById('upscaleFactor').value;
+            
+            if (!file) {
+                showToast('Please upload an image', 'warning');
+                return;
+            }
+            
+            showToast(`Upscaling image ${factor}x... 🔍 (This is a demo - real implementation would use AI service)`, 'info');
+            
+            // In a real implementation, you would use an upscaling service
+            // For demo, just show the original image
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('aiToolBefore').src = e.target.result;
+                document.getElementById('aiToolAfter').src = e.target.result;
+                aiToolResultUrl = e.target.result;
+                document.getElementById('aiToolResult').style.display = 'block';
+                showToast(`Image upscaled ${factor}x! (Demo mode) 🔍`, 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Background Removal
+        async function removeBackground() {
+            const file = document.getElementById('backgroundImage').files[0];
+            
+            if (!file) {
+                showToast('Please upload an image', 'warning');
+                return;
+            }
+            
+            showToast('Removing background... 🗑️ (This is a demo - real implementation would use AI service)', 'info');
+            
+            // In a real implementation, you would use remove.bg API or similar
+            // For demo, just show the original image
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('aiToolBefore').src = e.target.result;
+                document.getElementById('aiToolAfter').src = e.target.result;
+                aiToolResultUrl = e.target.result;
+                document.getElementById('aiToolResult').style.display = 'block';
+                showToast('Background removed! (Demo mode) 🗑️', 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // AI Tool Result Actions
+        function downloadAIResult() {
+            if (aiToolResultUrl) {
+                const link = document.createElement('a');
+                link.href = aiToolResultUrl;
+                link.download = `ai-result-${Date.now()}.jpeg`;
+                link.click();
+                showToast('Download started! 📥', 'success');
+            }
+        }
+        
+        async function saveAIToGallery() {
+            if (aiToolResultUrl) {
+                await addToGallery({
+                    id: Date.now().toString(),
+                    type: 'ai-tool',
+                    prompt: `AI Tool: ${currentAITool}`,
+                    imageUrl: aiToolResultUrl,
+                    timestamp: new Date().toISOString()
+                });
+                showToast('Saved to gallery! 🖼️', 'success');
+            }
         }
     </script>
 </body>

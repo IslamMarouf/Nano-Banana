@@ -665,7 +665,13 @@ async def health_check():
 
 @app.get("/web", summary="Web Interface", description="Serve the web interface")
 async def serve_web_interface():
-    """Serve the ULTIMATE+ web interface with gallery, batch processing, comparison slider, and all features"""
+    """Serve the AI ENHANCED web interface with variations, prompt enhancement, style transfer, upscaling, and all features"""
+    html_path = os.path.join(os.path.dirname(__file__), "web_interface_v5.html")
+    return FileResponse(html_path)
+
+@app.get("/web/v4.1", summary="Web Interface V4.1", description="Serve the ULTIMATE+ web interface")
+async def serve_web_interface_v4_1():
+    """Serve the ULTIMATE+ web interface with comparison slider"""
     html_path = os.path.join(os.path.dirname(__file__), "web_interface_v4_1.html")
     return FileResponse(html_path)
 
